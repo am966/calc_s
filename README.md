@@ -3,8 +3,10 @@ Program written by Amy Gunton
 This code calculates the local softness and writes to ouput files
 
 Input files
-calc_loc_soft.in		Input file with denominator, naming convention of charge,
+calc_loc_soft.in		Input file with surface, naming convention of charge,
 				surface charge, number of data points, seednames of data points
+
+<surface>_A.csv			Input file with converged corrected denominator in eV A^2 e^-1
 
 <seedname>_<charge>.den_fmt	Formatted file of local density at a given charge
 <seedname>.den_fmt		Formatted file of local density at zero charge 
