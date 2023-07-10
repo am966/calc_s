@@ -1,4 +1,4 @@
-subroutine calc_loc_soft_delegate(seedname, ch_char, surfch, denom)
+subroutine calc_loc_soft_delegate(seedname, ch_char, surfch, denom, volume)
 implicit none
 !
 ! This program was written by Amy Miller on 30 Mar 2016
@@ -22,6 +22,7 @@ character(len=210) :: input_file_0                     ! name of input file for 
 ! double precision
 double precision, intent(in):: surfch                  ! surface charge e A^-2
 double precision, intent(in):: denom                   ! denominator of local softness eV A^2 e^-1
+double precision, intent(in):: volume                  ! volume of supercell A^3
 
 double precision, dimension(:,:,:), allocatable:: numerator  ! numerator of local softness A^-1 e^-1
 double precision, dimension(:,:,:), allocatable:: loc_soft   ! local softness eV A^-3 
@@ -40,10 +41,10 @@ allocate(den_0(i_size, j_size, k_size))
 allocate(numerator(i_size, j_size, k_size))
 allocate(loc_soft(i_size, j_size, k_size))
 
-! call subrout to read in den_fmt 
-call read_den(input_file_m, i_size, j_size, k_size, den_m) 
-call read_den(input_file_p, i_size, j_size, k_size, den_p) 
-call read_den(input_file_0, i_size, j_size, k_size, den_0) 
+! call subrout to read in den_fmt and convert to electrons per cubic Angstrom
+call read_den(input_file_m, i_size, j_size, k_size, den_m, volume) 
+call read_den(input_file_p, i_size, j_size, k_size, den_p, volume) 
+call read_den(input_file_0, i_size, j_size, k_size, den_0, volume) 
 
 ! call subrout to calculate numerator
 call calc_s_r(denom, surfch, i_size, j_size, k_size, den_m, den_p, numerator, loc_soft)

@@ -1,4 +1,4 @@
-subroutine read_den(input_file, i_size, j_size, k_size, density)
+subroutine read_den(input_file, i_size, j_size, k_size, density, volume)
 implicit none
 !
 ! This subroutine was written by Amy Miller on 30 Mar 2016
@@ -8,6 +8,7 @@ implicit none
 character(len=210), intent(in) :: input_file                           ! name of input file
 integer, intent(in) :: i_size, j_size, k_size                          ! number of grid points along x, y, z
 double precision, intent(inout) :: density(i_size, j_size, k_size)     ! density
+double precision, intent(in) :: volume                                 ! volume
 
 character :: dummy_char
 integer :: i, j, k                                                     ! grid position indices
@@ -26,6 +27,9 @@ number_of_lines=i_size*j_size*k_size
 do line = 1, number_of_lines
     read(11,*) i, j, k, density(i,j,k)
 end do
+
+! convert density to units of electrons per cubic Angstrom
+density = density / volume
 
 ! close file
 close(11)

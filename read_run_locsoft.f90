@@ -1,7 +1,7 @@
 program read_run_locsoft
 implicit none
 !
-! This program was written by Amy Miller on 30 Mar 2016
+! This program was written by Amy Gunton 
 !
 ! Program to read in data and run a subroutine  which calculates the local softness
 ! for each grid point in the cell
@@ -18,7 +18,11 @@ integer :: number_files, ifile             ! number of files and index of file n
 
 ! double precision
 double precision:: surfch                  ! surface charge e A^-2
-double precision:: denom             ! denominator of local softness eV A^2 e^-1
+double precision:: denom                   ! denominator of local softness eV A^2 e^-1
+double precision:: volume                  ! volume of supercell/ A^3
+
+! initialise volume
+volume = 0.0
 
 ! read in values from input file
 open(8, file="calc_loc_soft.in")
@@ -64,18 +68,26 @@ read(8,16) dummy_char
 ! read in number of data points
 read(8,*) number_files
 
-! skip two lines
-read(8,16) dummy_char
+! check there is only one file. I think it only works in this case.
+if(number_files==1) then
+    ! skip two lines
+    read(8,16) dummy_char
 
-! read in name of files
-do ifile = 1, number_files
     read(8,*) seedname
-    write(*,*) 'file number', ifile, trim(seedname)
-    call calc_loc_soft_delegate(seedname, ch_char, surfch, denom)
-end do
 
+    ! skip two lines
+    read(8,16) dummy_char
+
+    ! read in supercell volume in cubic Angstroms
+    read(8,*) volume
+
+    write(*,*) trim(seedname)
+    call calc_loc_soft_delegate(seedname, ch_char, surfch, denom, volume)
+
+     write(*,*) "volume = ", volume
+end if
+    
 close(8)
-
 
 stop 
 end program read_run_locsoft
