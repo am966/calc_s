@@ -15,6 +15,7 @@ double precision, intent(in) :: loc_soft(i_size, j_size, k_size)       ! local s
 ! local variables
 character(len=250) ::  den_out                                         ! name of density output file
 character(len=250) ::  jmol_s_r_file                                   ! name of density output file
+character(len=250) ::  std_soft_file                                   ! name of density output file
 
 character(len=15) :: string1(9)                                        ! First line of den_fmt lattice param
 character(len=15) :: string2(9)                                        ! Second line of den_fmt lattice param
@@ -32,11 +33,29 @@ double precision :: jmol_s_r(i_size, j_size, k_size)                   ! jmol lo
 ! define names of output files
 den_out = './'//trim(seedname)//'_halfcell.den_fmt'
 jmol_s_r_file = './'//trim(seedname)//'_jmol_s_r.den_fmt'
+std_soft_file = './'//trim(seedname)//'_s_r.den_fmt'
 
 ! read in header
 call read_den_header(seedname, input_file_0, string1, string2, string3, nspins)
 
 ! write output files
+
+! write file of standard local softness in density format
+! open file and write headers
+
+open(34, file = std_soft_file)
+write(34, *) " BEGIN header"
+write(34, *) " "
+write(34, *) "           Real Lattice(A)               Lattice parameters(A)    Cell Angles "
+write(34, *) string1(1:3), "a = ", string1(6), "alpha = ", string1(9)
+write(34, *) string2(1:3), "b = ", string2(6), "beta  = ", string2(9)
+write(34, *) string3(1:3), "c = ", string3(6), "gamma = ", string3(9)
+write(34, *) " "
+write(34, *) nspins, " ! nspins "
+write(34, *) i_size, j_size, k_size, " ! fine FFT grid along <a,b,c> "
+write(34, *) " END header: data is <a b c>  s(r) in units of inverse eV per cubic"
+write(34, *) " Angstrom. "
+
 
 ! open new density format file and write headers
 open(15, file=den_out)
@@ -104,6 +123,9 @@ do k = 1, k_size
             ! write local softness to a file with headers
             write(33,22) i, j, k, jmol_s_r(i, j, k)
             22 format(3(i4),f20.8)
+
+            ! write local softness to a file with headers
+            write(34,22) i, j, k, loc_soft(i, j, k)
 
         end do
     end do
