@@ -54,6 +54,7 @@ write(34, *) " 1                            ! nspins " ! assume nspins is 1
 write(34, *) i_size, j_size, k_size, " ! fine FFT grid along <a,b,c> "
 write(34, *) " END header: data is <a b c>  s(r) in units of inverse eV per cubic"
 write(34, *) " Angstrom. "
+write(34, *) "  "
 
 
 ! open new density format file and write headers
@@ -69,6 +70,7 @@ write(15, *) " 1                            ! nspins " ! assume nspins is 1
 write(15, *) i_size, j_size, k_size, " ! fine FFT grid along <a,b,c> "
 write(15, *) " END header: data is <a b c> charge in units of electrons per cubic"
 write(15, *) " Angstrom "
+write(15, *) " "
 
 ! Open new local softness density format file and write headers
 open(33, file=jmol_s_r_file)
@@ -83,6 +85,7 @@ write(33, *) " 1                            ! nspins " ! assume nspins is 1
 write(33, *) i_size, j_size, k_size, " ! fine FFT grid along <a,b,c> "
 write(33, *) " END header: data is <a b c> -s(r) in units of inverse eV per cubic"
 write(33, *) " Angstrom. Bulk softness has some false values for scaling the colourplot"
+write(33, *) " "
 
 
 ! Make new density matrix with zero charge in the bottom half of the cell
