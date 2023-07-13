@@ -1,16 +1,12 @@
 subroutine calc_loc_soft_delegate(seedname, ch_char, surfch, denom, volume)
 implicit none
 !
-! This program was written by Amy Miller on 30 Mar 2016
+! This program was written by Amy Gunton
 !
 ! Program to read in the numerator of local softness and 
 ! using a supplied value of the denominator 
 ! calculated the local softness for each grid point in the cell
 !
-
-! integers
-integer:: i_size, j_size, k_size                       ! number of grid points along x, y, z
-
 ! characters
 character:: dummy_char                                 ! dummy character to skip lines
 character(len=200), intent(in) :: seedname             ! seedname of calculation
@@ -18,6 +14,9 @@ character(len=10), intent(in) :: ch_char               ! character of charge nam
 character(len=210) :: input_file_m                     ! name of input file for negative charge
 character(len=210) :: input_file_p                     ! name of input file for positive charge
 character(len=210) :: input_file_0                     ! name of input file for zero charge
+
+! integers
+integer:: i_size, j_size, k_size                       ! number of grid points along x, y, z
 
 ! double precision
 double precision, intent(in):: surfch                  ! surface charge e A^-2
@@ -51,6 +50,7 @@ call calc_s_r(denom, surfch, i_size, j_size, k_size, den_m, den_p, numerator, lo
 
 ! call subrout to write the local softness into a file
 call write_out(seedname, surfch, denom, i_size, j_size, k_size, den_0, numerator, loc_soft)
+call write_jmol(seedname, i_size, j_size, k_size, input_file_0, den_0, loc_soft)
 
 ! write
 write(*,*) "den_m(3 6 172", den_m(3,6,172)

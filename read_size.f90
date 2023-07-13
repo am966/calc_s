@@ -21,7 +21,7 @@ input_file_p = './'//trim(seedname)//'_p'//trim(ch_char)//'.den_fmt'
 input_file_0 = './'//trim(seedname)//'.den_fmt'
 
 ! open file
-open(10,file=input_file_m)
+open(10,file=input_file_0)
 
 ! skip first 8 lines
 read(10,20) dummy_char
