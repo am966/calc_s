@@ -90,8 +90,8 @@ k_third = k_size / 3 ! NB this is integer division therefore will round down
 
 jmol_s_r = -1.0 * loc_soft         ! set as negative of s(r)
 jmol_s_r(:,:,k_half:k_size) = 0.0  ! set lower half of cell to zero
-jmol_s_r(i_half,j_half,k_third:k_half) = 99999999.00000000        ! set line within cell to dummy value
-jmol_s_r(i_half,j_half_plus1,k_third:k_half) = 88888888.00000000  ! set line within cell to dummy value
+jmol_s_r(i_half,j_half,k_third:k_half) = 9999999.0        ! set line within cell to dummy value
+jmol_s_r(i_half,j_half_plus1,k_third:k_half) = 8888888.0  ! set line within cell to dummy value
 
 ! write in matrices to output files
 do k = 1, k_size
