@@ -20,6 +20,18 @@ Output files
                                 columns are i j k density s(r) 
                                 where density has units of electrons per cubic Angstrom
                                 and s(r) has units of eV^-1 A^-3
+<seedname>_halfcell.den_fmt     File of density in correct units with lower half of the cell artificially
+                                set to zero for jmol visualisation.
+<seedname>_s_r.den_fmt          File of 'out of the box' softness in the correct units and in den_fmt 
+                                for jmol visualisation
+<seedname>_jmol_s_r.den_fmt     File of -s(r) for jmol colourmaps. This has units of eV^-1 
+                                A^-3 and the lower half of the cell is artificially set to zero. 
+                                Certain regions within the slab are artificially set to 8888888.00000000
+                                or 9999999.00000000 in order to be able to manually change the range for 
+                                the colourmaps
 
 corrected error where the zero charge matrix was read in as a 1D array (resulting in only getting charge
 from the vacuum region with massive errors)
+
+Limitations
+only works for n_spins = 1

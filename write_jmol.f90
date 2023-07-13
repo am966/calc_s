@@ -21,7 +21,6 @@ character(len=15) :: string1(9)                                        ! First l
 character(len=15) :: string2(9)                                        ! Second line of den_fmt lattice param
 character(len=15) :: string3(9)                                        ! Third line of den_fmt lattice param
 
-integer :: nspins                                                      ! nspins parameter
 integer :: i, j, k                                                     ! index of grid position
 integer :: i_half, j_half, k_half                                      ! index half way down each axis of unit cell
 integer :: j_half_plus1                                                ! index just over half the j axis
@@ -36,7 +35,7 @@ jmol_s_r_file = './'//trim(seedname)//'_jmol_s_r.den_fmt'
 std_soft_file = './'//trim(seedname)//'_s_r.den_fmt'
 
 ! read in header
-call read_den_header(seedname, input_file_0, string1, string2, string3, nspins)
+call read_den_header(seedname, input_file_0, string1, string2, string3)
 
 ! write output files
 
@@ -51,7 +50,7 @@ write(34, *) string1(1:3), "a = ", string1(6), "alpha = ", string1(9)
 write(34, *) string2(1:3), "b = ", string2(6), "beta  = ", string2(9)
 write(34, *) string3(1:3), "c = ", string3(6), "gamma = ", string3(9)
 write(34, *) " "
-write(34, *) nspins, " ! nspins "
+write(34, *) " 1                            ! nspins " ! assume nspins is 1
 write(34, *) i_size, j_size, k_size, " ! fine FFT grid along <a,b,c> "
 write(34, *) " END header: data is <a b c>  s(r) in units of inverse eV per cubic"
 write(34, *) " Angstrom. "
@@ -66,7 +65,7 @@ write(15, *) string1(1:3), "a = ", string1(6), "alpha = ", string1(9)
 write(15, *) string2(1:3), "b = ", string2(6), "beta  = ", string2(9)
 write(15, *) string3(1:3), "c = ", string3(6), "gamma = ", string3(9)
 write(15, *) " "
-write(15, *) nspins, " ! nspins "
+write(15, *) " 1                            ! nspins " ! assume nspins is 1
 write(15, *) i_size, j_size, k_size, " ! fine FFT grid along <a,b,c> "
 write(15, *) " END header: data is <a b c> charge in units of electrons per cubic"
 write(15, *) " Angstrom "
@@ -80,7 +79,7 @@ write(33, *) string1(1:3), "a = ", string1(6), "alpha = ", string1(9)
 write(33, *) string2(1:3), "b = ", string2(6), "beta  = ", string2(9)
 write(33, *) string3(1:3), "c = ", string3(6), "gamma = ", string3(9)
 write(33, *) " "
-write(33, *) nspins, " ! nspins "
+write(33, *) " 1                            ! nspins " ! assume nspins is 1
 write(33, *) i_size, j_size, k_size, " ! fine FFT grid along <a,b,c> "
 write(33, *) " END header: data is <a b c> -s(r) in units of inverse eV per cubic"
 write(33, *) " Angstrom. Bulk softness has some false values for scaling the colourplot"
