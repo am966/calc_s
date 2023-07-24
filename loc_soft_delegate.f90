@@ -1,4 +1,4 @@
-subroutine calc_loc_soft_delegate(seedname, ch_char, surfch, denom, volume)
+subroutine calc_loc_soft_delegate(seedname, ch_char, surfch, denom, volume, s_min, s_max)
 implicit none
 !
 ! This program was written by Amy Gunton
@@ -22,6 +22,8 @@ integer:: i_size, j_size, k_size                       ! number of grid points a
 double precision, intent(in):: surfch                  ! surface charge e A^-2
 double precision, intent(in):: denom                   ! denominator of local softness eV A^2 e^-1
 double precision, intent(in):: volume                  ! volume of supercell A^3
+double precision, intent(in):: s_min                   ! minimum value of -s(r) for range
+double precision, intent(in):: s_max                   ! maximum value of -s(r) for range
 
 double precision, dimension(:,:,:), allocatable:: numerator  ! numerator of local softness A^-1 e^-1
 double precision, dimension(:,:,:), allocatable:: loc_soft   ! local softness eV A^-3 
@@ -50,7 +52,7 @@ call calc_s_r(denom, surfch, i_size, j_size, k_size, den_m, den_p, numerator, lo
 
 ! call subrout to write the local softness into a file
 call write_out(seedname, surfch, denom, i_size, j_size, k_size, den_0, numerator, loc_soft)
-call write_jmol(seedname, i_size, j_size, k_size, input_file_0, den_0, loc_soft)
+call write_jmol(seedname, i_size, j_size, k_size, input_file_0, den_0, loc_soft, s_min, s_max)
 
 ! write
 write(*,*) "den_m(3 6 172", den_m(3,6,172)

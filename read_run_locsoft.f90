@@ -20,6 +20,8 @@ integer :: number_files, ifile             ! number of files and index of file n
 double precision:: surfch                  ! surface charge e A^-2
 double precision:: denom                   ! denominator of local softness eV A^2 e^-1
 double precision:: volume                  ! volume of supercell/ A^3
+double precision:: s_min                   ! minimum value of -s(r)
+double precision:: s_max                   ! maximum value of -s(r)
 
 ! initialise volume
 volume = 0.0
@@ -33,7 +35,7 @@ read(8,15) dummy_char
 
 ! read in string of charge for naming convention
 read(8,*) ch_char
-write(*,*) ch_char
+write(*,*) "charge is ", ch_char
 
 ! skip two lines
 read(8,16) dummy_char
@@ -41,7 +43,7 @@ read(8,16) dummy_char
 
 ! read in surface charge in double precision
 read(8,*) surfch
-write(*,*) surfch
+write(*,*) "surface charge is ", surfch
 
 ! ! skip two lines
 read(8,16) dummy_char
@@ -69,23 +71,41 @@ read(8,16) dummy_char
 read(8,*) number_files
 
 ! check there is only one file. I think it only works in this case.
-if(number_files==1) then
-    ! skip two lines
-    read(8,16) dummy_char
+if (number_files/=1) then
 
-    read(8,*) seedname
+    ! write warning
+    write(*,*) "WARNING multiple files are not supported!"
 
-    ! skip two lines
-    read(8,16) dummy_char
-
-    ! read in supercell volume in cubic Angstroms
-    read(8,*) volume
-
-    write(*,*) trim(seedname)
-    call calc_loc_soft_delegate(seedname, ch_char, surfch, denom, volume)
-
-     write(*,*) "volume = ", volume
 end if
+
+! skip two lines
+read(8,16) dummy_char
+
+read(8,*) seedname
+
+! skip two lines
+read(8,16) dummy_char
+
+! read in supercell volume in cubic Angstroms
+read(8,*) volume
+
+! skip two lines
+read(8,16) dummy_char
+
+! read in minimum value of -s(r)
+read(8,*) s_min
+write(*,*) "minimum is", s_min
+
+! skip two lines
+read(8,16) dummy_char
+
+! read in maximum value of -s(r)
+read(8,*) s_max
+
+write(*,*) trim(seedname)
+call calc_loc_soft_delegate(seedname, ch_char, surfch, denom, volume, s_min, s_max)
+
+write(*,*) "volume = ", volume
     
 close(8)
 

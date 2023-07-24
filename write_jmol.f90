@@ -1,4 +1,4 @@
-subroutine write_jmol(seedname, i_size, j_size, k_size, input_file_0, den_0, loc_soft)
+subroutine write_jmol(seedname, i_size, j_size, k_size, input_file_0, den_0, loc_soft, s_min, s_max)
 implicit none
 !
 ! written by Amy Gunton
@@ -11,6 +11,7 @@ integer, intent(in) :: i_size, j_size, k_size                          ! number 
 
 double precision, intent(in) :: den_0(i_size, j_size, k_size)          ! density of zero charge calculation
 double precision, intent(in) :: loc_soft(i_size, j_size, k_size)       ! local softness in eV^-1 A^-3
+double precision, intent(in) :: s_min, s_max                           ! minimum and maximum values of -s(r)
 
 ! local variables
 character(len=250) ::  den_out                                         ! name of density output file
@@ -22,9 +23,9 @@ character(len=15) :: string2(9)                                        ! Second 
 character(len=15) :: string3(9)                                        ! Third line of den_fmt lattice param
 
 integer :: i, j, k                                                     ! index of grid position
-integer :: i_half, j_half, k_half                                      ! index half way down each axis of unit cell
-integer :: j_half_plus1                                                ! index just over half the j axis
-integer :: k_third                                                     ! index third of the way down the unit cell
+!integer :: i_half, j_half                                              ! index half way along a and b axes of unit cell
+integer :: k_half                                                      ! index half way down c axis of unit cell
+integer :: k_two_thirds                                                ! index part way down c axis of unit cell
 
 double precision :: den_0_half(i_size, j_size, k_size)                 ! density of zero charge calculation
 double precision :: jmol_s_r(i_size, j_size, k_size)                   ! jmol local softness in eV^-1 A^-3
@@ -91,28 +92,24 @@ write(33, *) " "
 ! Make new density matrix with zero charge in the bottom half of the cell
 
 ! Define point halfway along c dimension of unit cell
-k_half = k_size / 2 ! NB this is integer division therefore will round down 
+k_half = k_size / 2             ! NB this is integer division therefore will round down 
+k_two_thirds = (2 * k_size) / 3 ! NB this is integer division therefore will round down 
 
 den_0_half = den_0 
-den_0_half(:,:,k_half:k_size) = 0.0
+den_0_half(:,:,k_half:k_two_thirds) = 0.0       ! set some locations in the cell to zero
 
 ! Make new softness matrix for jmol visualisation
 ! This matrix has values of zero for the bottom half of the unit cell
 ! Also the matrix is the negative of the local softness
 ! Also add some false values for setting the scale
 
-! define variables to find the grid point at positions along each axis
-i_half = i_size / 2 ! NB this is integer division therefore will round down
-j_half = j_size / 2 ! NB this is integer division therefore will round down
-
-j_half_plus1 = j_half + 1
-
-k_third = k_size / 3 ! NB this is integer division therefore will round down 
-
 jmol_s_r = -1.0 * loc_soft         ! set as negative of s(r)
-jmol_s_r(:,:,k_half:k_size) = 0.0  ! set lower half of cell to zero
-jmol_s_r(i_half,j_half,k_third:k_half) = 9999999.0        ! set line within cell to dummy value
-jmol_s_r(i_half,j_half_plus1,k_third:k_half) = 8888888.0  ! set line within cell to dummy value
+jmol_s_r(:,:,k_half:k_two_thirds) = 0.0         ! set some locations in the cell to zero
+jmol_s_r(1,:,k_two_thirds:k_size) = s_min       ! set line within cell to range minimum
+jmol_s_r(2,:,k_two_thirds:k_size) = s_max       ! set line within cell to range maximum
+
+write(*,*) "jmol_s_r(1,1,k_size)", jmol_s_r(1,1,k_size)
+write(*,*) "jmol_s_r(2,2,k_size)", jmol_s_r(2,2,k_size)
 
 ! write in matrices to output files
 do k = 1, k_size
