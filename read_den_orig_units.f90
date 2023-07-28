@@ -1,14 +1,13 @@
-subroutine read_den(input_file, i_size, j_size, k_size, density, volume)
+subroutine read_den_orig_units(input_file, i_size, j_size, k_size, density_orig_units)
 implicit none
 !
 ! This subroutine was written by Amy Gunton
 !
 ! subroutine to read in the den_fmt grid
 
-character(len=210), intent(in) :: input_file                           ! name of input file
-integer, intent(in) :: i_size, j_size, k_size                          ! number of grid points along x, y, z
-double precision, intent(inout) :: density(i_size, j_size, k_size)     ! density
-double precision, intent(in) :: volume                                 ! volume
+character(len=210), intent(in) :: input_file                                      ! name of input file
+integer, intent(in) :: i_size, j_size, k_size                                     ! number of grid points along x, y, z
+double precision, intent(inout) :: density_orig_units(i_size, j_size, k_size)     ! density
 
 character :: dummy_char
 integer :: i, j, k                                                     ! grid position indices
@@ -25,14 +24,13 @@ number_of_lines=i_size*j_size*k_size
 
 ! read number of sample points along x, y and z
 do line = 1, number_of_lines
-    read(11,*) i, j, k, density(i,j,k)
+    read(11,*) i, j, k, density_orig_units(i,j,k)
 end do
 
-! convert density to units of electrons per cubic Angstrom
-density = density / volume
+! leave density in units of electrons per supercell
 
 ! close file
 close(11)
 
 return
-end subroutine read_den
+end subroutine read_den_orig_units

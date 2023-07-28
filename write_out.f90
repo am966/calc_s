@@ -1,7 +1,7 @@
-subroutine write_out(seedname, surfch, denom, i_size, j_size, k_size, den_0, numerator, loc_soft)
+subroutine write_out(seedname, surfch, denom, i_size, j_size, k_size, numerator, loc_soft)
 implicit none
 !
-! written by Amy Miller on 6 May 2016
+! written by Amy Gunton
 ! This subroutine writes the numerator and local softness to output files
 !
 character(len=200), intent(in) :: seedname                             ! seedname of calculation
@@ -11,11 +11,13 @@ integer, intent(in) :: i_size, j_size, k_size                          ! number 
 double precision, intent(in) :: surfch                                 ! surface charge
 double precision, intent(in) :: denom                                  ! denominator of local softness
 
-double precision, intent(in) :: den_0(i_size, j_size, k_size)          ! density of zero charge calculation
 double precision, intent(in) :: numerator(i_size, j_size, k_size)      ! numerator
 double precision, intent(in) :: loc_soft(i_size, j_size, k_size)       ! local softness
 
+double precision :: density_orig_units(i_size, j_size, k_size)         ! zero charge density (electrons per supercell)
+
 ! local variables
+character(len=250) :: input_file       ! name of numerator output file
 character(len=250) :: num_out          ! name of numerator output file
 character(len=250) :: s_r_out          ! name of s(r) output file
 character(len=250) :: top_data         ! name of s(r) output file in topology.data format
@@ -23,6 +25,7 @@ character(len=250) :: top_data         ! name of s(r) output file in topology.da
 integer :: i, j, k                     ! index of grid position
 
 ! define names of output files
+input_file = './'//trim(seedname)//'.den_fmt'
 num_out = './'//trim(seedname)//'_numerator.dat'
 s_r_out = './'//trim(seedname)//'_s_r.dat'
 top_data = './'//trim(seedname)//'.data'
@@ -30,6 +33,9 @@ top_data = './'//trim(seedname)//'.data'
 write(*,*) num_out
 write(*,*) s_r_out
 write(*,*) top_data
+
+! read in density in original units of electrons per supercell from file
+call read_den_orig_units(input_file, i_size, j_size, k_size, density_orig_units)
 
 ! write output files
 
@@ -61,7 +67,7 @@ do k = 1, k_size
             22 format(3(i4),f20.8)
 
             ! write local softness to a file in topology.data format
-            write(14,23) i, j, k, den_0(i, j, k), loc_soft(i, j, k)
+            write(14,23) i, j, k, density_orig_units(i, j, k), loc_soft(i, j, k)
             23 format(3(i4),2(f20.8))
 
         end do

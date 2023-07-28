@@ -51,7 +51,7 @@ call read_den(input_file_0, i_size, j_size, k_size, den_0, volume)
 call calc_s_r(denom, surfch, i_size, j_size, k_size, den_m, den_p, numerator, loc_soft)
 
 ! call subrout to write the local softness into a file
-call write_out(seedname, surfch, denom, i_size, j_size, k_size, den_0, numerator, loc_soft)
+call write_out(seedname, surfch, denom, i_size, j_size, k_size, numerator, loc_soft)
 call write_jmol(seedname, i_size, j_size, k_size, input_file_0, den_0, loc_soft, s_min, s_max)
 
 ! write
