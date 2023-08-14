@@ -1,8 +1,8 @@
 subroutine calc_s_r(denom, surfch, i_size, j_size, k_size, den_m, den_p, numerator, loc_soft)
 implicit none
 !
-! written by Amy Miller on 30 Mar 2016
-! This subroutine calculates the numerator and local softness
+! written by Amy Gunton
+! This subroutine calculates the numerator and local softness per supercell
 !
 integer, intent(in) :: i_size, j_size, k_size                          ! number of grid points along x, y, z
 

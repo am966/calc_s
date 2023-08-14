@@ -25,12 +25,15 @@ double precision, intent(in):: volume                  ! volume of supercell A^3
 double precision, intent(in):: s_min                   ! minimum value of -s(r) for range
 double precision, intent(in):: s_max                   ! maximum value of -s(r) for range
 
-double precision, dimension(:,:,:), allocatable:: numerator  ! numerator of local softness A^-1 e^-1
-double precision, dimension(:,:,:), allocatable:: loc_soft   ! local softness eV A^-3 
+double precision, dimension(:,:,:), allocatable:: numerator  ! numerator of local softness per supercell
+double precision, dimension(:,:,:), allocatable:: loc_soft   ! local softness eV^-1 per supercell
+double precision, dimension(:,:,:), allocatable:: loc_soft_Ang   ! local softness eV^-1 A^-3 
 
-double precision, dimension(:,:,:), allocatable:: den_m      ! density for negative charge
-double precision, dimension(:,:,:), allocatable:: den_p      ! density for positive charge
-double precision, dimension(:,:,:), allocatable:: den_0      ! density for zero charge
+double precision, dimension(:,:,:), allocatable:: den_m      ! density for negative charge per supercell
+double precision, dimension(:,:,:), allocatable:: den_p      ! density for positive charge per supercell
+double precision, dimension(:,:,:), allocatable:: den_0      ! density for zero charge per supercell
+
+double precision, dimension(:,:,:), allocatable:: den_Ang_0  ! density for zero charge in A^-3
 
 ! call subrout to read in size of arrays
 call read_size(seedname, ch_char, i_size, j_size, k_size, input_file_m, input_file_p, input_file_0)
@@ -39,20 +42,30 @@ call read_size(seedname, ch_char, i_size, j_size, k_size, input_file_m, input_fi
 allocate(den_m(i_size, j_size, k_size))
 allocate(den_p(i_size, j_size, k_size))
 allocate(den_0(i_size, j_size, k_size))
+
+allocate(den_Ang_0(i_size, j_size, k_size))
+
 allocate(numerator(i_size, j_size, k_size))
 allocate(loc_soft(i_size, j_size, k_size))
 
-! call subrout to read in den_fmt and convert to electrons per cubic Angstrom
-call read_den(input_file_m, i_size, j_size, k_size, den_m, volume) 
-call read_den(input_file_p, i_size, j_size, k_size, den_p, volume) 
-call read_den(input_file_0, i_size, j_size, k_size, den_0, volume) 
+allocate(loc_soft_Ang(i_size, j_size, k_size))
+
+! call subrout to read in density from den_fmt files in units of electrons per supercell 
+call read_den(input_file_m, i_size, j_size, k_size, den_m) 
+call read_den(input_file_p, i_size, j_size, k_size, den_p) 
+call read_den(input_file_0, i_size, j_size, k_size, den_0) 
 
 ! call subrout to calculate numerator
 call calc_s_r(denom, surfch, i_size, j_size, k_size, den_m, den_p, numerator, loc_soft)
 
 ! call subrout to write the local softness into a file
-call write_out(seedname, surfch, denom, i_size, j_size, k_size, numerator, loc_soft)
-call write_jmol(seedname, i_size, j_size, k_size, input_file_0, den_0, loc_soft, s_min, s_max)
+call write_out(seedname, surfch, denom, i_size, j_size, k_size, den_0, loc_soft)
+
+! Calculate the density and softness in units of A^-3 instead of per supercell
+den_Ang_0 = den_0 / volume
+loc_soft_Ang = loc_soft / volume
+
+call write_jmol(seedname, i_size, j_size, k_size, input_file_0, den_Ang_0, loc_soft_Ang, s_min, s_max)
 
 ! write
 write(*,*) "den_m(3 6 172", den_m(3,6,172)
@@ -65,6 +78,9 @@ deallocate(loc_soft)
 deallocate(den_m)
 deallocate(den_p)
 deallocate(den_0)
+
+deallocate(loc_soft_Ang)
+deallocate(den_Ang_0)
 
 return
 end subroutine calc_loc_soft_delegate

@@ -1,4 +1,4 @@
-subroutine write_jmol(seedname, i_size, j_size, k_size, input_file_0, den_0, loc_soft, s_min, s_max)
+subroutine write_jmol(seedname, i_size, j_size, k_size, input_file_0, den_Ang_0, loc_soft_Ang, s_min, s_max)
 implicit none
 !
 ! written by Amy Gunton
@@ -9,8 +9,8 @@ character(len=200), intent(in) :: input_file_0                         ! name of
 
 integer, intent(in) :: i_size, j_size, k_size                          ! number of grid points along x, y, z
 
-double precision, intent(in) :: den_0(i_size, j_size, k_size)          ! density of zero charge calculation
-double precision, intent(in) :: loc_soft(i_size, j_size, k_size)       ! local softness in eV^-1 A^-3
+double precision, intent(in) :: den_Ang_0(i_size, j_size, k_size)          ! density of zero charge calculation
+double precision, intent(in) :: loc_soft_Ang(i_size, j_size, k_size)       ! local softness in eV^-1 A^-3
 double precision, intent(in) :: s_min, s_max                           ! minimum and maximum values of -s(r)
 
 ! local variables
@@ -27,7 +27,7 @@ integer :: i, j, k                                                     ! index o
 integer :: k_half                                                      ! index half way down c axis of unit cell
 integer :: k_two_thirds                                                ! index part way down c axis of unit cell
 
-double precision :: den_0_half(i_size, j_size, k_size)                 ! density of zero charge calculation
+double precision :: den_jmol_0(i_size, j_size, k_size)                 ! zero charge density modified for jmol visualisation
 double precision :: jmol_s_r(i_size, j_size, k_size)                   ! jmol local softness in eV^-1 A^-3
 
 ! define names of output files
@@ -95,15 +95,15 @@ write(33, *) " "
 k_half = k_size / 2             ! NB this is integer division therefore will round down 
 k_two_thirds = (2 * k_size) / 3 ! NB this is integer division therefore will round down 
 
-den_0_half = den_0 
-den_0_half(:,:,k_half:k_two_thirds) = 0.0       ! set some locations in the cell to zero
+den_jmol_0 = den_Ang_0 
+den_jmol_0(:,:,k_half:k_two_thirds) = 0.0       ! set some locations in the cell to zero
 
 ! Make new softness matrix for jmol visualisation
 ! This matrix has values of zero for the bottom half of the unit cell
 ! Also the matrix is the negative of the local softness
 ! Also add some false values for setting the scale
 
-jmol_s_r = -1.0 * loc_soft         ! set as negative of s(r)
+jmol_s_r = -1.0 * loc_soft_Ang         ! set as negative of s(r)
 jmol_s_r(:,:,k_half:k_two_thirds) = 0.0         ! set some locations in the cell to zero
 jmol_s_r(1,:,k_two_thirds:k_size) = s_min       ! set line within cell to range minimum
 jmol_s_r(2,:,k_two_thirds:k_size) = s_max       ! set line within cell to range maximum
@@ -117,14 +117,14 @@ do k = 1, k_size
         do i = 1, i_size
 
             ! write zero charge density to a file with zeros for lower half of cell
-            write(15,*) i, j, k, den_0_half(i, j, k)
+            write(15,*) i, j, k, den_jmol_0(i, j, k)
 
             ! write local softness to a file with headers
             write(33,22) i, j, k, jmol_s_r(i, j, k)
             22 format(3(i4),f20.8)
 
             ! write local softness to a file with headers
-            write(34,22) i, j, k, loc_soft(i, j, k)
+            write(34,22) i, j, k, loc_soft_Ang(i, j, k)
 
         end do
     end do
