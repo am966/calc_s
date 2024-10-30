@@ -1,18 +1,18 @@
-# calc\_s Program
+# calc\_s program
 
 ## Description
-
-Wrote a program to read in multiple input files including files 
-produced by CASTEP, extract important data and use it to calculate the 
-local softness, s(r). Local softness is written to several files in 
+The calc\_s program reads in multiple input files including files 
+produced by CASTEP, extracts data and calculates a reactivity index, 
+the local softness, s(r). Local softness is written to several files in 
 different formats, including one suitable for visualisation with the 
 3D molecular viewer jmol. Another output file is suitable for further 
-processing via the topology program which calculates the related 
-condensed reactivity index, the atomic softness.
+processing via the topology program (which calculates the related 
+condensed reactivity index, the atomic softness.)
 
 ## Table of contents
 
 - Installation
+- Scientific Background
 - Usage
   - Input files
   - Output files
@@ -24,13 +24,31 @@ Compile with Fortran 90 to generate binary file xcorr.gfortran. Make sure
 this is executable.
 
 For compiling with gfortran first use
-`gfortran -c *0`
+```
+gfortran -c *0
+```
 then link files with
-`gfortran -o calc_s *o`
+```
+gfortran -o calc_s *o
+```
+
+## Scientific background
+In studying catalysis using surface science it is helpful to have 
+descriptors of reactivity for metal surfaces. An example of a 
+reactivity index is the local softness, which is a measure of how
+electrons accumilate on a metal surface when the chemical potential
+is increased.
+ 
+This can be calculated from the electron density and
+chemical potential as outputted by the CASTEP electronic structure 
+theory code, along with using the OptaDOS code to calculate the 
+density of states (DOS), once the xcorr code (Amy Gunton, 
+https://github.com/am966/xcorr) has been used to plug a data gap 
+(CASTEP does not output the energy reference for calculations).
 
 ## Usage
 
-How to run the code. This program can be run in linux using the command line \:
+The calc\_s program can be run in linux using the command line \:
 
 ```
 ./calc_s
@@ -50,11 +68,15 @@ Input file where key variables are specified\:
 - seednames of data points
 - volume of supercell
 
+
 ```
 <surface>_A.csv
 ```
-Converged corrected denominator (also known as parameter A) in 
+Converged corrected denominator of local softness, calculated as
+fitted parameter A from an exponential model (R scripting) using values
+of the denominator of local softness calculated using the xcorr code 
 units of eV A^2 e^-1
+
 
 ```
 <seedname>_<charge>.den_fmt
@@ -72,16 +94,14 @@ per supercell.
 
 ### Output files
 
-#### General output files
-```
-<seedname>_numerator.dat
-```
-Text file of numerator of local softness 
+#### General output file
 
 ```
 <seedname>_s_r.dat
 ```
-Text file of the local softness
+Text file of the local softness in eV^-1 per supercell. Header contains
+extra information about the denominator of local softness and the total
+local softness over the supercell grid points.
 
 #### Output files for visualisation with jmol
 
@@ -91,6 +111,7 @@ Text file of the local softness
 File of 'out of the box' local softness in units of eV^-1 per supercell
 written in the correct format for jmol visualisation
 
+
 ```
 <seedname>_halfcell.den_fmt
 ```
@@ -98,11 +119,13 @@ File of density in units of electrons per supercell with the density of
 the lower half of the supercell artificially set to zero for jmol
 visualisation purposes
 
+
 ```
 <seedname>_minus_s_r.den_fmt
 ```
 File of `-s(r)` for jmol colourmaps in units of units of inverse eV 
 per cubic Angstrom.
+
 
 ```
 <seedname>_jmol_s_r.den_fmt
