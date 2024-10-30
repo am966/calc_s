@@ -67,11 +67,6 @@ loc_soft_Ang = loc_soft / volume
 
 call write_jmol(seedname, i_size, j_size, k_size, input_file_0, den_Ang_0, loc_soft_Ang, s_min, s_max)
 
-! write
-write(*,*) "den_m(3 6 172", den_m(3,6,172)
-write(*,*) "den_p(3 6 172", den_p(3,6,172)
-write(*,*) "den_0(3 6 172", den_0(3,6,172)
-
 ! deallocate arrays and finish program
 deallocate(numerator)
 deallocate(loc_soft)

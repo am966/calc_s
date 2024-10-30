@@ -15,8 +15,9 @@ double precision, intent(in) :: s_min, s_max                           ! minimum
 
 ! local variables
 character(len=250) ::  den_out                                         ! name of density output file
-character(len=250) ::  jmol_s_r_file                                   ! name of density output file
-character(len=250) ::  std_soft_file                                   ! name of density output file
+character(len=250) ::  jmol_s_r_file                                   ! name of local softness for jmol
+character(len=250) ::  std_soft_file                                   ! name of local softness output file
+character(len=250) ::  whole_minus_s_r_file                            ! name of output file for negative softness
 
 character(len=15) :: string1(9)                                        ! First line of den_fmt lattice param
 character(len=15) :: string2(9)                                        ! Second line of den_fmt lattice param
@@ -26,14 +27,17 @@ integer :: i, j, k                                                     ! index o
 !integer :: i_half, j_half                                              ! index half way along a and b axes of unit cell
 integer :: k_half                                                      ! index half way down c axis of unit cell
 integer :: k_two_thirds                                                ! index part way down c axis of unit cell
+integer :: k_third                                                     ! index part way down c axis of unit cell
 
 double precision :: den_jmol_0(i_size, j_size, k_size)                 ! zero charge density modified for jmol visualisation
 double precision :: jmol_s_r(i_size, j_size, k_size)                   ! jmol local softness in eV^-1 A^-3
+double precision :: jmol_minus_s_r(i_size, j_size, k_size)             ! jmol negative of local softness in eV^-1 A^-3
 
 ! define names of output files
 den_out = './'//trim(seedname)//'_halfcell.den_fmt'
 jmol_s_r_file = './'//trim(seedname)//'_jmol_s_r.den_fmt'
 std_soft_file = './'//trim(seedname)//'_s_r.den_fmt'
+whole_minus_s_r_file = './'//trim(seedname)//'_minus_s_r.den_fmt'
 
 ! read in header
 call read_den_header(seedname, input_file_0, string1, string2, string3)
@@ -57,6 +61,22 @@ write(34, *) " END header: data is <a b c>  s(r) in units of inverse eV per cubi
 write(34, *) " Angstrom. "
 write(34, *) "  "
 
+! write file of negative local softness in density format
+! open file and write headers
+
+open(35, file = whole_minus_s_r_file)
+write(35, *) " BEGIN header"
+write(35, *) " "
+write(35, *) "           Real Lattice(A)               Lattice parameters(A)    Cell Angles "
+write(35, *) string1(1:3), "a = ", string1(6), "alpha = ", string1(9)
+write(35, *) string2(1:3), "b = ", string2(6), "beta  = ", string2(9)
+write(35, *) string3(1:3), "c = ", string3(6), "gamma = ", string3(9)
+write(35, *) " "
+write(35, *) " 1                            ! nspins " ! assume nspins is 1
+write(35, *) i_size, j_size, k_size, " ! fine FFT grid along <a,b,c> "
+write(35, *) " END header: data is <a b c> -s(r) in units of inverse eV per cubic"
+write(35, *) " Angstrom. "
+write(35, *) "  "
 
 ! open new density format file and write headers
 open(15, file=den_out)
@@ -93,23 +113,26 @@ write(33, *) " "
 
 ! Define point halfway along c dimension of unit cell
 k_half = k_size / 2             ! NB this is integer division therefore will round down 
+k_third = k_size / 3            ! NB this is integer division therefore will round down 
 k_two_thirds = (2 * k_size) / 3 ! NB this is integer division therefore will round down 
 
 den_jmol_0 = den_Ang_0 
-den_jmol_0(:,:,k_half:k_two_thirds) = 0.0       ! set some locations in the cell to zero
+den_jmol_0(:,:,k_third:k_half) = 0.0       ! set some locations in the top half of the cell to zero
 
 ! Make new softness matrix for jmol visualisation
-! This matrix has values of zero for the bottom half of the unit cell
+! This matrix has values of zero for the top half of the unit cell
 ! Also the matrix is the negative of the local softness
 ! Also add some false values for setting the scale
 
-jmol_s_r = -1.0 * loc_soft_Ang         ! set as negative of s(r)
-jmol_s_r(:,:,k_half:k_two_thirds) = 0.0         ! set some locations in the cell to zero
-jmol_s_r(1,:,k_two_thirds:k_size) = s_min       ! set line within cell to range minimum
-jmol_s_r(2,:,k_two_thirds:k_size) = s_max       ! set line within cell to range maximum
+jmol_minus_s_r = -1.0 * loc_soft_Ang            ! set as negative of s(r)
 
-write(*,*) "jmol_s_r(1,1,k_size)", jmol_s_r(1,1,k_size)
-write(*,*) "jmol_s_r(2,2,k_size)", jmol_s_r(2,2,k_size)
+jmol_s_r = -1.0 * loc_soft_Ang                  ! set as negative of s(r)
+jmol_s_r(:,:,k_third:k_half) = 0.0              ! set some locations in the cell to zero
+jmol_s_r(1,:,1:k_third) = s_min                 ! set plane within cell to range minimum
+jmol_s_r(2,:,1:k_third) = s_max                 ! set plane within cell to range maximum
+
+write(*,*) "jmol_s_r(1,1,1)", jmol_s_r(1,1,1)
+write(*,*) "jmol_s_r(2,2,1)", jmol_s_r(2,2,1)
 
 ! write in matrices to output files
 do k = 1, k_size
@@ -119,12 +142,15 @@ do k = 1, k_size
             ! write zero charge density to a file with zeros for lower half of cell
             write(15,*) i, j, k, den_jmol_0(i, j, k)
 
-            ! write local softness to a file with headers
+            ! write modified local softness to a file with headers for jmol visualisation
             write(33,22) i, j, k, jmol_s_r(i, j, k)
             22 format(3(i4),f20.8)
 
             ! write local softness to a file with headers
             write(34,22) i, j, k, loc_soft_Ang(i, j, k)
+
+            ! write negative of local softness to a file with headers
+            write(35,22) i, j, k, jmol_minus_s_r(i, j, k)
 
         end do
     end do
@@ -133,6 +159,8 @@ end do
 ! close files and end subroutine
 close(15)
 close(33)
+close(34)
+close(35)
 
 return
 end subroutine write_jmol
